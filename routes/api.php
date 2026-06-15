@@ -11,4 +11,5 @@ Route::get('/user', function (Request $request) {
 
 Route::controller(UserController::class)->group(function(){
     Route::post('/register', 'register' );
+    Route::post('/login', 'login');
 });

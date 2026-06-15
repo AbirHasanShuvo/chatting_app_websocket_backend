@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
@@ -31,12 +32,40 @@ class UserController extends Controller
             'password' => bcrypt($request->password)
         ]);
 
+        $token = $user->createToken('auth')->plainTextToken;
+
         return response()->json([
             'status' => 'Success',
-            'data' => $user
+            'token' => $token,
+            'data' => $user,
         ]);
 
 
 
+    }
+
+    public function login(Request $request){
+        $request->validate([
+            'email' => 'required|exists:users,email',
+            'password' => 'required'
+        ]);
+
+        if(Auth::attempt($request->only('email', 'password'))){
+            $user = User::where('email', $request->email)->first();
+            $token = $user->createToken('auth')->plainTextToken;
+
+            return response()->json([
+            'message' => 'User logged in',
+            'token' =>  $token,
+            'data' => $user
+
+        ]);
+        }
+
+        else{
+            return response()->json(['message'=>'Invalid details']);
+        }
+
+        
     }
 }
