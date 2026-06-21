@@ -17,6 +17,7 @@ Route::controller(UserController::class)->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::controller(MessageController::class)->group(function () {
         Route::get('/users', 'getUsers');
-        Route::post('/send-message', 'sendMessage');
+        Route::post('/send-message', 'sendMessages');
+        Route::get('/messages/{id}', 'getMessages');
     });
 });
