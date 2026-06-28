@@ -27,17 +27,16 @@ class MessageController extends Controller
             'type' => 'required|in:text,video,photo',
         ]);
 
-        Message::create([
+        $message = Message::create([
             'receiver_id' => $request->receiver_id,
             'sender_id' => auth()->id(),
             'message' => $request->message,
             'type' => $request->type,
-
         ]);
 
-        return response()->json([
-            'message' => 'Message sent',
-        ]);
+        $message->is_me = true; // sender is always the auth user
+
+        return response()->json($message); // return the full message object
     }
 
     public function getMessages($id)
@@ -52,6 +51,12 @@ class MessageController extends Controller
         })
             ->orderBy('created_at', 'asc')
             ->get();
+
+        $messages = $messages->map(function ($message) use ($user) {
+            $message->is_me = $message->sender_id == $user->id;
+
+            return $message;
+        });
 
         return response()->json($messages);
     }
